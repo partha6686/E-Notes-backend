@@ -12,7 +12,7 @@ router.post('/register',[
     //* Adding Validations using express-validator
     body('name', 'Enter a Valid name.').isLength({ min: 3 }),
     body('email', 'Enter a Valid Email').isEmail(),
-    body('password', 'Password must have atleast 5 charecters.').isLength({ min: 5 }),
+    body('password', 'Password must have atleast 5 charecters.').isLength({ min: 5 })
 ], async (req,res)=>{
     try {
         //* check errors and send Bad requests 
@@ -34,17 +34,57 @@ router.post('/register',[
                     email: req.body.email,
                     password: hash,
                 })
+                //* Send JWt Authentication Token
                 const data = {
                     user:{
                         id: user.id
                     }
                 }
                 const authToken = jwt.sign(data, JWT_SECRET);
-                // console.log(jwtData);
+                
                 res.json({authToken});
             }
         })
 
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+//* Login a User using POST: '/api/auth/login'
+router.post('/login',[
+    //* Adding Validations using express-validator
+    body('email', 'Enter a Valid Email').isEmail(),
+    body('password', 'Password cannot be blank').exists()
+], async (req,res)=>{
+    //* check errors and send Bad requests 
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const {email, password} = req.body;
+    try {
+        //* Search for the user and Authenticate
+        let user = await User.findOne({email})
+        if(!user){
+            return res.status(400).json({ errors: "Email address or Password is incorrect"});
+        }
+        bcrypt.compare(password, user.password).then((result)=>{
+            if(!result){
+                return res.status(400).json({ errors: "Email address or Password is incorrect"});
+            }
+            //* Send JWt Authentication Token
+            const data = {
+                user:{
+                    id: user.id
+                }
+            }
+            const authToken = jwt.sign(data, JWT_SECRET);
+
+            res.json({authToken});
+        })
     } catch (error) {
         //* Send Internal Server Error
         console.error(error.message);
