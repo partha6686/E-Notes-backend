@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 const  bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fetchuser = require('../middleware/fetchuser');
 
 const router = express.Router();
 const JWT_SECRET = 'This@is@a@secret@which@everyone@knows';
@@ -85,6 +86,18 @@ router.post('/login',[
 
             res.json({authToken});
         })
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+//* Fetch User Data using POST: '/api/auth/fetchuser' Login Required
+router.post('/fetchuser', fetchuser, async (req,res)=>{
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        res.send(user);
     } catch (error) {
         //* Send Internal Server Error
         console.error(error.message);
