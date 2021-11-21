@@ -19,7 +19,7 @@ router.post('/register',[
         //* check errors and send Bad requests 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array()[0] });
         }
         //* Check if a User with the same email already exists
         let user = await User.findOne({email: req.body.email});
@@ -63,7 +63,7 @@ router.post('/login',[
     //* check errors and send Bad requests 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ errors: errors.array()[0] });
     }
     const {email, password} = req.body;
     try {

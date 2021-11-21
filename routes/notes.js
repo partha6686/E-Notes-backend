@@ -28,7 +28,7 @@ router.post('/addnote', fetchuser, [
         //* check errors and send Bad requests 
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ errors: errors.array()[0] });
         }
         //* Create a new Notes object and save it to DB
         const note = new Notes({
