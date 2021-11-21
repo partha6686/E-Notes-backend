@@ -24,7 +24,7 @@ router.post('/register',[
         //* Check if a User with the same email already exists
         let user = await User.findOne({email: req.body.email});
         if(user){
-            return res.status(400).json({error: 'A user with the given email alredy exists.Please login to continue.'})
+            return res.status(400).json({errors: 'A user with the given email alredy exists.Please login to continue.'})
         }
         //* Hashing and Salting Password
         bcrypt.hash(req.body.password, 10, async (err,hash)=>{
