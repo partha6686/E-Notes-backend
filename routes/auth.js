@@ -93,16 +93,6 @@ router.post('/login',[
     }
 })
 
-//* Fetch User Data using POST: '/api/auth/fetchuser' Login Required
-router.post('/fetchuser', fetchuser, async (req,res)=>{
-    try {
-        const user = await User.findById(req.user.id).select("-password");
-        res.send(user);
-    } catch (error) {
-        //* Send Internal Server Error
-        console.error(error.message);
-        res.status(500).send("Some error occured");
-    }
-})
+
 
 module.exports = router;
