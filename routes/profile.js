@@ -21,7 +21,7 @@ const upload = multer({ storage: storageStrategy });
 const router = express.Router();
 
 //* ADD PROFILE PICTURE POST: '/api/profile/add-profile-picture'
-router.post('/add-profile-picture', fetchuser, upload.single('profile-picture'), async (req, res)=>{
+router.post('/add-profile-picture', fetchuser, upload.single('profilePicture'), async (req, res)=>{ 
     try {
         console.log(req.file);
         const user = await User.findByIdAndUpdate(req.user.id, {profileImg: req.file.path}).select("-password");
