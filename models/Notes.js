@@ -5,14 +5,6 @@ const NotesSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    // author: {
-    //     type: String,
-    //     required: true
-    // },
-    // authorImg: {
-    //     type: String,
-    //     required: true
-    // },
     title: {
         type: String,
         required: true
@@ -33,6 +25,10 @@ const NotesSchema = new mongoose.Schema({
     date:{
         type: Date,
         default: Date.now
-    }
+    },
+    likes:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }]
 })
 module.exports = mongoose.model('Notes', NotesSchema);

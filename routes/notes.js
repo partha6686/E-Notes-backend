@@ -5,7 +5,7 @@ const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
-//* Get all Public notes GET: '/api/notes/' Login NOT Required
+/************************************ Get all Public notes GET: '/api/notes/' Login NOT Required ************************************/
 router.get('/', async (req, res) => {
     try {
         const notes = await Notes.find({ status: 'public' }).sort({ _id: -1 });
@@ -17,7 +17,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-//* Get all notes of a User GET: '/api/notes/user' Login Required
+/************************************ Get all notes of a User GET: '/api/notes/user' Login Required ************************************/
 router.get('/user', fetchuser, async (req, res) => {
     try {
         const notes = await Notes.find({ user: req.user.id }).sort({ _id: -1 });
@@ -29,7 +29,7 @@ router.get('/user', fetchuser, async (req, res) => {
     }
 })
 
-//* Add notes to DB POST: '/api/notes/addnote' Login Required
+/************************************ Add notes to DB POST: '/api/notes/addnote' Login Required ************************************/
 router.post('/addnote', fetchuser, [
     //* Adding Validations using express-validator
     body('title', 'Enter a Valid title').isLength({ min: 3 }),
@@ -60,7 +60,7 @@ router.post('/addnote', fetchuser, [
     }
 })
 
-//* Update a note PUT: '/api/notes/updatenote' Login Required
+/************************************ Update a note PUT: '/api/notes/updatenote' Login Required ************************************/
 router.put('/updatenote/:id', fetchuser, async (req, res) => {
     try {
         const { title, description, tag, status } = req.body;
@@ -90,7 +90,7 @@ router.put('/updatenote/:id', fetchuser, async (req, res) => {
     }
 })
 
-//* Delete a note DELETE: '/api/notes/deletenote' Login Required
+/************************************ Delete a note DELETE: '/api/notes/deletenote' Login Required ************************************/
 router.delete('/deletenote/:id', fetchuser, async (req, res) => {
     try {
         //* Find the note and delete it if it belongs to the user
@@ -105,6 +105,34 @@ router.delete('/deletenote/:id', fetchuser, async (req, res) => {
         note = await Notes.findByIdAndDelete(req.params.id);
         res.json({ "Success": "Note has been deleted", "note": note });
 
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+/************************************ LIKE a note PUT: '/api/notes/like/:id' Login Required ************************************/
+router.put('/like/:id', fetchuser, async (req, res) => {
+    try {
+        let note = await Notes.findByIdAndUpdate(req.params.id, {
+            $addToSet: { likes: req.user.id }
+        }, { new: true });
+        res.json({ "note": note })
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+/************************************ UNLIKE a note PUT: '/api/notes/unlike/:id' Login Required ************************************/
+router.put('/unlike/:id', fetchuser, async (req, res) => {
+    try {
+        let note = await Notes.findByIdAndUpdate(req.params.id, {
+            $pull: { likes: req.user.id }
+        }, { new: true });
+        res.json({ "note": note })
     } catch (error) {
         //* Send Internal Server Error
         console.error(error.message);
