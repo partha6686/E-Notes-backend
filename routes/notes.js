@@ -2,6 +2,7 @@ const express = require('express');
 const fetchuser = require('../middleware/fetchuser');
 const Notes = require('../models/Notes');
 const { body, validationResult } = require('express-validator');
+const Comments = require('../models/Comments');
 
 const router = express.Router();
 
@@ -133,6 +134,43 @@ router.put('/unlike/:id', fetchuser, async (req, res) => {
             $pull: { likes: req.user.id }
         }, { new: true });
         res.json({ "note": note })
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+
+/*************************** GET ALL COMMENTS of a note GET: '/api/notes/comment/:id' Login Required {_id of blog} **************************/
+router.get('/comment/:id', fetchuser, async (req, res) => {
+    try {
+        const comments = await Comments.find({ postId: req.params.id }).sort({ _id: -1 });
+        res.json(comments);
+    } catch (error) {
+        //* Send Internal Server Error
+        console.error(error.message);
+        res.status(500).send("Some error occured");
+    }
+})
+
+/*************************** COMMENT on a note POST: '/api/notes/comment/:id' Login Required {_id of blog} **************************/
+router.post('/comment/:id', fetchuser, [
+    body('comment', 'Can\'t post a empty comment').notEmpty()
+], async (req, res) => {
+    try {
+        //* check errors and send Bad requests 
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array()[0] });
+        }
+        const comment = new Comments({
+            user: req.user.id,
+            postId: req.params.id,
+            comment: req.body.comment
+        });
+        const saveComment = await comment.save();
+        res.json(saveComment);
     } catch (error) {
         //* Send Internal Server Error
         console.error(error.message);
