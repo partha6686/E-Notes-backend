@@ -145,7 +145,7 @@ router.put('/unlike/:id', fetchuser, async (req, res) => {
 /*************************** GET ALL COMMENTS of a note GET: '/api/notes/comment/:id' Login Required {_id of blog} **************************/
 router.get('/comment/:id', fetchuser, async (req, res) => {
     try {
-        const comments = await Comments.find({ postId: req.params.id }).sort({ _id: -1 });
+        const comments = await Comments.find({ postId: req.params.id }).sort({ _id: 1 });
         res.json(comments);
     } catch (error) {
         //* Send Internal Server Error
